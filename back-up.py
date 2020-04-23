@@ -13,6 +13,8 @@ df2.show(1)
                           
 rdd = df2.rdd.map(tuple)
 rdd.take(2)
+
+
 def whatis(line):
   return line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], line[18], line[19]
 whatis = rdd.map(whatis)
@@ -26,8 +28,12 @@ def takeline(line):
     else:
             id = id
     return id, line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], line[18], line[19]
+
+
 takeline = rdd.map(takeline)
 takeline.take(3)
+
+
 #remove html tags and other weird emojis in "message" content
 def remove_paragraph_tags(line):
     fixupcontent = line[4]
@@ -42,11 +48,16 @@ def remove_paragraph_tags(line):
     "]+", flags=re.UNICODE)
     fixupcontent2 = (emoji_pattern.sub(r'', str(fixupcontent1)))
     return line[0], line[1], line[2], line[3], str(fixupcontent1), line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], line[18], line[19]
+
+
 remove_tags = takeline.map(remove_paragraph_tags)
 remove_tags.take(1)
 remove_tags_df = remove_tags.toDF()
 remove_tags_df = remove_tags_df.replace('None',None).na.fill('na')
 remove_tags = remove_tags_df.rdd.map(tuple)
+
+
+
 def fix_time(line):
     created_time = line[6]
     html = "<"
@@ -78,7 +89,11 @@ def fix_time(line):
     except:
         datetime_create = datetime.datetime.strptime('2021-01-01', '%Y-%m-%d')
     return line[0], line[1], line[2], line[3], line[4], line[5], datetime_create, line[7], line[8], line[9], line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], line[18], line[19]
+
+
 fix1 = remove_tags.map(fix_time)
+
+
 def fix_time1(line):
     html = "<"
     url = "pp-facebook-ads"
@@ -100,8 +115,13 @@ def fix_time1(line):
     except:
         datetime_update = datetime.datetime.strptime('2021-01-01', '%Y-%m-%d')
     return line[0], line[1], line[2], line[3], line[4], line[5], line[6], datetime_update, line[8], line[9], line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], line[18], line[19]
+
+
 fixtime1 = fix1.map(fix_time1)
 fixtime1.take(4)
+
+
+
 def fixline(line):
     paid = line[18]
     div = "<div>"
@@ -115,8 +135,12 @@ def fixline(line):
     else:
             paid = paid
     return line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], paid, line[19]
+
+
 fixline = fixtime1.map(fixline)
 fixline.take(10)
+
+
 #taking the brackets out of the image col
 def images_column(line):
     image_url = line[9]
@@ -129,8 +153,13 @@ def images_column(line):
       image_url = image_url.replace(cleanend, '')
       image_url = image_url.replace(quote, '')
       return line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], str(image_url), line[10], line[11], line[12], line[13], line[14], line[15], line[16], line[17], line[18], line[19]
+
+
+
 image_col = fixline.map(images_column)
 image_col.take(1)  
+
+
 #for target column, replace [] rows with "NA"
 def target_col(line):
     target = line[13]
@@ -141,34 +170,19 @@ def target_col(line):
     else:
             key = target
     return line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], key, line[14], line[15], line[16], line[17], line[18], line[19]
-          
+
+
 target = image_col.map(target_col)
 target.take(2)
+
+
 def mapper(line):
     return line[18], 1
+
 def addFunc(left, right):
     return left + right
-  
+
 target2 = target.map(mapper).reduceByKey(addFunc)
 target2.take(2)  
-####################################################################################333
-result = isinstance(dictline, dict)
- 
-def key_values(line):
-    target = line[13]
-    if isinstance(target,dict):
-            for k,v in target.items():
-                    return k,v
-                    return line[0], line[1], line[2], line[3], line[4], line[5], line[6], line[7], line[8], line[9], line[10], line[11], line[12], key, line[14, line[15], line[16], line[17], line[18], line[19]       
-def key_values(line):
-    target = line[13]
-    if isinstance(target,dict):
-            for k, v in target.items():
-                return k, v
-            key, values = target.items()
-            return key, values
-    else:
-            return target
-        
-target = image_col.map(target_col)
-target.take(2) 
+
+
